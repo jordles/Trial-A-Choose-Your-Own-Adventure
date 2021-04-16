@@ -1,1 +1,42 @@
+#A workflow application is a software application which automates, to at least some degree, a process or processes.
 
+name: Build #name of the workflow
+
+#indication of the series of steps that follow will execute whenever someone pushes code to the master branch.
+on: 
+  push:
+    branches:
+      - master
+      
+#This indicates the series of steps that follow will execute whenever someone pushes code to the master branch.
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v1 #This checks out the latest version of our code
+      
+#Tweego is written in the programming language Go. We'll be compiling Tweego's code from scratch, which means we need a Go compiler. 
+#This gives us a working environment for Go code, and lets us specify which version of Go we want.      
+      - name: Use Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13.x
+
+#The first go get line downloads and compiles the Tweego tool itself. The next line does some fiddly environment setup you don't particularly 
+#need to worry about (modifying our PATH so we can just call the tweego binary without specifying a full filepath). Finally, we run tweego itself.
+      - name: build game
+        run:
+          go get github.com/tmedwards/tweego
+          export PATH=$PATH:$(go env GOPATH)/bin
+          tweego src -o dist/index.html
+          
+#At this point, we have an HTML file in a directory called dist. This is a third-party action created by another GitHub user that deploys code straight 
+#to GitHub Pages. This config uses an automatically-generated access token (so it has permissions to commit/deploy), and specifies that we want to take 
+#all of the files in the dist directory and publish them to the gh-pages branch.
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v2
+        env: 
+          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: ./dist
