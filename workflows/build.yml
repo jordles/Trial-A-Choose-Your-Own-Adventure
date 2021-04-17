@@ -29,7 +29,7 @@ jobs:
         run:
           go get github.com/tmedwards/tweego
           export PATH=$PATH:$(go env GOPATH)/bin
-          tweego -o dist/index.html src
+          tweego src -o dist/index.html
            
 #At this point, we have an HTML file in a directory called dist. This is a third-party action created by another GitHub user that deploys code straight 
 #to GitHub Pages. This config uses an automatically-generated access token (so it has permissions to commit/deploy), and specifies that we want to take 
